@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.shortcuts import render
 
 from .models import Category, Product
+from django.shortcuts import get_object_or_404
 
 
 def product_list(request):
@@ -42,3 +43,24 @@ def product_list(request):
         "sort": sort,
     }
     return render(request, "records/product_list.html", context)
+
+
+
+def product_detail(request, slug):
+    product = get_object_or_404(
+        Product.objects.select_related("category").prefetch_related("images"),
+        slug=slug,
+        is_active=True,
+    )
+
+    related_products = (
+        Product.objects.filter(category=product.category, is_active=True)
+        .exclude(id=product.id)
+        .select_related("category")[:4]
+    )
+
+    context = {
+        "product": product,
+        "related_products": related_products,
+    }
+    return render(request, "records/product_detail.html", context)

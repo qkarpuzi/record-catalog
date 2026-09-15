@@ -146,7 +146,7 @@
             {% for product in page_obj %}
                 <div class="card">
                     <span class="category-tag">{{ product.category.name }}</span>
-                    <h3>{{ product.name }}</h3>
+                    <h3><a href="{% url 'records:product_detail' product.slug %}" style="color: inherit; text-decoration: none;">{{ product.name }}</a></h3>
                     <div class="price">${{ product.price }}</div>
                     <div class="stock">{{ product.stock }} in stock</div>
                 </div>
