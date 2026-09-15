@@ -1,11 +1,13 @@
 import random
+import requests
 from decimal import Decimal
 
+from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 from faker import Faker
 
-from records.models import Category, Product
+from records.models import Category, Product, ProductImage
 
 fake = Faker()
 
@@ -31,11 +33,15 @@ class Command(BaseCommand):
             default=5000,
             help="Number of products to create (default: 5000)",
         )
+        parser.add_argument(
+            "--with-images",
+            action="store_true",
+            help="Download a real placeholder photo for each seeded product (slower).",
+        )
 
     def handle(self, *args, **options):
         count = options["count"]
 
-        # Create categories first (small, fixed list — safe to get_or_create individually)
         categories = []
         for name in CATEGORY_NAMES:
             category, _ = Category.objects.get_or_create(
@@ -46,7 +52,6 @@ class Command(BaseCommand):
 
         self.stdout.write(f"Using {len(categories)} categories.")
 
-        # Build products in memory, then bulk_create in batches
         batch_size = 500
         products = []
         existing_count = Product.objects.count()
@@ -66,13 +71,32 @@ class Command(BaseCommand):
             ))
 
             if len(products) >= batch_size:
-                Product.objects.bulk_create(products, batch_size=batch_size)
+                created = Product.objects.bulk_create(products, batch_size=batch_size)
+                if options["with_images"]:
+                    self._attach_images(created)
                 self.stdout.write(f"Inserted {i + 1}/{count} products...")
                 products = []
 
         if products:
-            Product.objects.bulk_create(products, batch_size=batch_size)
+            created = Product.objects.bulk_create(products, batch_size=batch_size)
+            if options["with_images"]:
+                self._attach_images(created)
 
         self.stdout.write(self.style.SUCCESS(
             f"Done. Total products in database: {Product.objects.count()}"
         ))
+
+    def _attach_images(self, products):
+        for product in products:
+            try:
+                url = f"https://picsum.photos/seed/{product.slug}/600/600"
+                response = requests.get(url, timeout=5)
+                response.raise_for_status()
+                image = ProductImage(product=product, is_primary=True, order=0)
+                image.image.save(
+                    f"{product.slug}.jpg",
+                    ContentFile(response.content),
+                    save=True,
+                )
+            except requests.RequestException:
+                self.stdout.write(f"  Image download failed for {product.slug}, skipping.")
