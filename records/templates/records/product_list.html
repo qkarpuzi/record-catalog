@@ -1,118 +1,17 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Catalog</title>
-    <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            background: #f7f8fa;
-            color: #1a1a1a;
-        }
-        header {
-            background: #1f2937;
-            color: white;
-            padding: 1.5rem 2rem;
-        }
-        header h1 { margin: 0; font-size: 1.5rem; }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1.5rem 2rem;
-        }
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-        .controls input[type="text"], .controls select {
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 0.9rem;
-        }
-        .controls button {
-            padding: 0.5rem 1.25rem;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .controls button:hover { background: #1d4ed8; }
-        .meta-bar {
-            margin-bottom: 1rem;
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 1.25rem;
-        }
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 1rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-        .card .category-tag {
-            display: inline-block;
-            font-size: 0.75rem;
-            color: #2563eb;
-            background: #eff6ff;
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
-            margin-bottom: 0.5rem;
-        }
-        .card h3 {
-            font-size: 1rem;
-            margin: 0 0 0.4rem 0;
-        }
-        .card .price {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: #111827;
-        }
-        .card .stock {
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-top: 0.3rem;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 2rem;
-        }
-        .pagination a, .pagination span {
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            text-decoration: none;
-            color: #374151;
-            background: white;
-            border: 1px solid #d1d5db;
-            font-size: 0.9rem;
-        }
-        .pagination .current {
-            background: #2563eb;
-            color: white;
-            border-color: #2563eb;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'records/catalog.css' %}">
 </head>
 <body>
-    <header>
-        <h1>Product Catalog</h1>
+    <header class="site-header">
+        <div class="header-inner">
+            <span class="brand">Record<span>Catalog</span></span>
+        </div>
     </header>
 
     <div class="container">
@@ -145,13 +44,34 @@
         <div class="grid">
             {% for product in page_obj %}
                 <div class="card">
-                    <span class="category-tag">{{ product.category.name }}</span>
-                    <h3><a href="{% url 'records:product_detail' product.slug %}" style="color: inherit; text-decoration: none;">{{ product.name }}</a></h3>
-                    <div class="price">${{ product.price }}</div>
-                    <div class="stock">{{ product.stock }} in stock</div>
+                    <a class="card-link" href="{% url 'records:product_detail' product.slug %}">
+                        <div class="card-media">
+                            {% with product.images.first as primary_image %}
+                                {% if primary_image %}
+                                    <img src="{{ primary_image.image.url }}" alt="{{ primary_image.alt_text|default:product.name }}" loading="lazy">
+                                {% else %}
+                                    <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                                        <path d="M21 15l-5-5L5 21"/>
+                                    </svg>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                        <div class="card-body">
+                            <span class="category-tag">{{ product.category.name }}</span>
+                            <h3>{{ product.name }}</h3>
+                            <div class="price-row">
+                                <span class="price">${{ product.price }}</span>
+                                <span class="stock{% if product.stock <= 0 %} low{% endif %}">
+                                    {% if product.stock > 0 %}{{ product.stock }} in stock{% else %}Out of stock{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             {% empty %}
-                <p>No products match your search.</p>
+                <div class="empty-state">No products match your search.</div>
             {% endfor %}
         </div>
 
