@@ -47,3 +47,21 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse("records:product_detail", kwargs={"slug": self.slug})
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="images",
+        db_index=True,
+    )
+    image = models.ImageField(upload_to="products/%Y/%m/")
+    alt_text = models.CharField(max_length=255, blank=True)
+    is_primary = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return f"Image for {self.product.name}"
