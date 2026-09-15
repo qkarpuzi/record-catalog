@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Catalog</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            background: #f7f8fa;
+            color: #1a1a1a;
+        }
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+        header h1 { margin: 0; font-size: 1.5rem; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .controls input[type="text"], .controls select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        .controls button {
+            padding: 0.5rem 1.25rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .controls button:hover { background: #1d4ed8; }
+        .meta-bar {
+            margin-bottom: 1rem;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .card .category-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            color: #2563eb;
+            background: #eff6ff;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .card h3 {
+            font-size: 1rem;
+            margin: 0 0 0.4rem 0;
+        }
+        .card .price {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #111827;
+        }
+        .card .stock {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 0.3rem;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        .pagination a, .pagination span {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #374151;
+            background: white;
+            border: 1px solid #d1d5db;
+            font-size: 0.9rem;
+        }
+        .pagination .current {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Product Catalog</h1>
+    </header>
+
+    <div class="container">
+        <form class="controls" method="get">
+            <input type="text" name="q" placeholder="Search products..." value="{{ query }}">
+
+            <select name="category">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.slug }}" {% if cat.slug == selected_category %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <select name="sort">
+                <option value="-created_at" {% if sort == "-created_at" %}selected{% endif %}>Newest</option>
+                <option value="price" {% if sort == "price" %}selected{% endif %}>Price: Low to High</option>
+                <option value="-price" {% if sort == "-price" %}selected{% endif %}>Price: High to Low</option>
+                <option value="name" {% if sort == "name" %}selected{% endif %}>Name: A-Z</option>
+            </select>
+
+            <button type="submit">Apply</button>
+        </form>
+
+        <div class="meta-bar">
+            {{ page_obj.paginator.count }} products found — page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </div>
+
+        <div class="grid">
+            {% for product in page_obj %}
+                <div class="card">
+                    <span class="category-tag">{{ product.category.name }}</span>
+                    <h3>{{ product.name }}</h3>
+                    <div class="price">${{ product.price }}</div>
+                    <div class="stock">{{ product.stock }} in stock</div>
+                </div>
+            {% empty %}
+                <p>No products match your search.</p>
+            {% endfor %}
+        </div>
+
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?q={{ query }}&category={{ selected_category }}&sort={{ sort }}&page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+            <span class="current">{{ page_obj.number }}</span>
+            {% if page_obj.has_next %}
+                <a href="?q={{ query }}&category={{ selected_category }}&sort={{ sort }}&page={{ page_obj.next_page_number }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
