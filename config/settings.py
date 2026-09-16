@@ -62,6 +62,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'records.context_processors.cart',
             ],
         },
     },
@@ -123,6 +124,11 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Auth
+LOGIN_URL = 'records:login'
+LOGIN_REDIRECT_URL = 'records:account'
+LOGOUT_REDIRECT_URL = 'records:home'
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration

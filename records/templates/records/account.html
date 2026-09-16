@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account — Record Catalog</title>
+    <link rel="stylesheet" href="{% static 'records/catalog.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="{% url 'records:home' %}">Record<span>Catalog</span></a>
+            <nav class="nav-links">
+                <a href="{% url 'records:product_list' %}">Shop</a>
+                <a href="{% url 'records:cart' %}">Cart{% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+                <a href="{% url 'records:account' %}">Account</a>
+                <a href="{% url 'records:contact' %}">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="form-card" style="max-width: 560px;">
+            <h1>My Account</h1>
+            <p class="subtitle">Your details on file.</p>
+
+            <ul class="account-info">
+                <li><span>Username</span><span>{{ user.username }}</span></li>
+                <li><span>Email</span><span>{{ user.email|default:"Not provided" }}</span></li>
+                <li><span>Member since</span><span>{{ user.date_joined|date:"F j, Y" }}</span></li>
+            </ul>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <a class="btn-secondary" href="{% url 'records:product_list' %}">Continue shopping</a>
+                <form method="post" action="{% url 'records:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-secondary">Log out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

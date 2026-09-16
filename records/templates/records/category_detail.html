@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Catalog</title>
+    <title>{{ category.name }} — Record Catalog</title>
     <link rel="stylesheet" href="{% static 'records/catalog.css' %}">
 </head>
 <body>
@@ -33,30 +33,21 @@
             </ul>
         {% endif %}
 
+        <h1 class="section-heading">{{ category.name }}</h1>
+        {% if category.description %}<p style="color: var(--ink-soft); margin-top: -0.75rem; margin-bottom: 1.5rem;">{{ category.description }}</p>{% endif %}
+
         <form class="controls" method="get">
-            <input type="text" name="q" placeholder="Search products..." value="{{ query }}">
-
-            <select name="category">
-                <option value="">All Categories</option>
-                {% for cat in categories %}
-                    <option value="{{ cat.slug }}" {% if cat.slug == selected_category %}selected{% endif %}>
-                        {{ cat.name }}
-                    </option>
-                {% endfor %}
-            </select>
-
             <select name="sort">
                 <option value="-created_at" {% if sort == "-created_at" %}selected{% endif %}>Newest</option>
                 <option value="price" {% if sort == "price" %}selected{% endif %}>Price: Low to High</option>
                 <option value="-price" {% if sort == "-price" %}selected{% endif %}>Price: High to Low</option>
                 <option value="name" {% if sort == "name" %}selected{% endif %}>Name: A-Z</option>
             </select>
-
             <button type="submit">Apply</button>
         </form>
 
         <div class="meta-bar">
-            {{ page_obj.paginator.count }} products found — page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            {{ page_obj.paginator.count }} products in {{ category.name }} — page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
         </div>
 
         <div class="grid">
@@ -90,17 +81,17 @@
                     </a>
                 </div>
             {% empty %}
-                <div class="empty-state">No products match your search.</div>
+                <div class="empty-state">No products in this category yet.</div>
             {% endfor %}
         </div>
 
         <div class="pagination">
             {% if page_obj.has_previous %}
-                <a href="?q={{ query }}&category={{ selected_category }}&sort={{ sort }}&page={{ page_obj.previous_page_number }}">Previous</a>
+                <a href="?sort={{ sort }}&page={{ page_obj.previous_page_number }}">Previous</a>
             {% endif %}
             <span class="current">{{ page_obj.number }}</span>
             {% if page_obj.has_next %}
-                <a href="?q={{ query }}&category={{ selected_category }}&sort={{ sort }}&page={{ page_obj.next_page_number }}">Next</a>
+                <a href="?sort={{ sort }}&page={{ page_obj.next_page_number }}">Next</a>
             {% endif %}
         </div>
     </div>

@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account — Record Catalog</title>
+    <link rel="stylesheet" href="{% static 'records/catalog.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="{% url 'records:home' %}">Record<span>Catalog</span></a>
+            <nav class="nav-links">
+                <a href="{% url 'records:product_list' %}">Shop</a>
+                <a href="{% url 'records:cart' %}">Cart{% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+                <a href="{% url 'records:login' %}">Login</a>
+                <a href="{% url 'records:contact' %}">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="form-card">
+            <h1>Create your account</h1>
+            <p class="subtitle">Join to save orders and check out faster.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="field">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    {% if form.username.help_text %}<span class="helptext">{{ form.username.help_text }}</span>{% endif %}
+                    {{ form.username.errors }}
+                </div>
+                <div class="field">
+                    <label for="{{ form.password1.id_for_label }}">Password</label>
+                    {{ form.password1 }}
+                    {{ form.password1.errors }}
+                </div>
+                <div class="field">
+                    <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+                    {{ form.password2 }}
+                    {{ form.password2.errors }}
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Create Account</button>
+            </form>
+
+            <div class="form-footer-link">
+                Already have an account? <a href="{% url 'records:login' %}">Log in</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

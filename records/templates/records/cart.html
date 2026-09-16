@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart — Record Catalog</title>
+    <link rel="stylesheet" href="{% static 'records/catalog.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="{% url 'records:home' %}">Record<span>Catalog</span></a>
+            <nav class="nav-links">
+                <a href="{% url 'records:product_list' %}">Shop</a>
+                <a href="{% url 'records:cart' %}">Cart{% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'records:account' %}">Account</a>
+                {% else %}
+                    <a href="{% url 'records:login' %}">Login</a>
+                {% endif %}
+                <a href="{% url 'records:contact' %}">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <h1 class="section-heading">Your Cart</h1>
+
+        {% if items %}
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td class="product-name">
+                                <a href="{% url 'records:product_detail' item.product.slug %}" style="text-decoration: none; color: inherit;">{{ item.product.name }}</a>
+                            </td>
+                            <td>${{ item.product.price }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ item.subtotal }}</td>
+                            <td>
+                                <form method="post" action="{% url 'records:cart_remove' item.product.slug %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="remove-btn">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="cart-summary">
+                <div class="box">
+                    <div class="row total">
+                        <span>Total</span>
+                        <span>${{ total }}</span>
+                    </div>
+                    <a class="btn-primary" style="display: block; margin-top: 1rem; text-align: center; text-decoration: none;" href="{% url 'records:checkout' %}">Proceed to Checkout</a>
+                </div>
+            </div>
+        {% else %}
+            <div class="cart-empty">
+                Your cart is empty.<br>
+                <a href="{% url 'records:product_list' %}" style="color: var(--terracotta-dark); font-weight: 700; text-decoration: none;">Start shopping &rarr;</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

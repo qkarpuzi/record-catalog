@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout — Record Catalog</title>
+    <link rel="stylesheet" href="{% static 'records/catalog.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="{% url 'records:home' %}">Record<span>Catalog</span></a>
+            <nav class="nav-links">
+                <a href="{% url 'records:product_list' %}">Shop</a>
+                <a href="{% url 'records:cart' %}">Cart{% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'records:account' %}">Account</a>
+                {% else %}
+                    <a href="{% url 'records:login' %}">Login</a>
+                {% endif %}
+                <a href="{% url 'records:contact' %}">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if items %}
+            <div class="form-card" style="max-width: 560px;">
+                <h1>Checkout</h1>
+                <p class="subtitle">Review your order and enter your shipping details.</p>
+
+                <ul class="order-summary-list">
+                    {% for item in items %}
+                        <li><span>{{ item.product.name }} &times; {{ item.quantity }}</span><span>${{ item.subtotal }}</span></li>
+                    {% endfor %}
+                    <li style="border-bottom: none; font-weight: 700; color: var(--terracotta-dark); font-family: 'Fraunces', serif; font-size: 1.1rem;">
+                        <span>Total</span><span>${{ total }}</span>
+                    </li>
+                </ul>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="id_name">Full name</label>
+                        <input type="text" id="id_name" name="name" required>
+                    </div>
+                    <div class="field">
+                        <label for="id_email">Email</label>
+                        <input type="email" id="id_email" name="email" required>
+                    </div>
+                    <div class="field">
+                        <label for="id_address">Shipping address</label>
+                        <textarea id="id_address" name="address" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%;">Place Order</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="cart-empty">
+                Your cart is empty — there's nothing to check out yet.<br>
+                <a href="{% url 'records:product_list' %}" style="color: var(--terracotta-dark); font-weight: 700; text-decoration: none;">Browse the shop &rarr;</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

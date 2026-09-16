@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In — Record Catalog</title>
+    <link rel="stylesheet" href="{% static 'records/catalog.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="{% url 'records:home' %}">Record<span>Catalog</span></a>
+            <nav class="nav-links">
+                <a href="{% url 'records:product_list' %}">Shop</a>
+                <a href="{% url 'records:cart' %}">Cart{% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+                <a href="{% url 'records:register' %}">Register</a>
+                <a href="{% url 'records:contact' %}">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="form-card">
+            <h1>Welcome back</h1>
+            <p class="subtitle">Log in to view your account and order history.</p>
+
+            {% if form.errors %}
+                <ul class="messages">
+                    <li class="message error">Your username or password was incorrect.</li>
+                </ul>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="field">
+                    <label for="id_username">Username</label>
+                    {{ form.username }}
+                </div>
+                <div class="field">
+                    <label for="id_password">Password</label>
+                    {{ form.password }}
+                </div>
+                <input type="hidden" name="next" value="{{ next }}">
+                <button type="submit" class="btn-primary" style="width: 100%;">Log In</button>
+            </form>
+
+            <div class="form-footer-link">
+                Don't have an account? <a href="{% url 'records:register' %}">Create one</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

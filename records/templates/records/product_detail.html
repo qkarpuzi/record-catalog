@@ -10,11 +10,28 @@
 <body>
     <header class="site-header">
         <div class="header-inner">
-            <a class="back-link" href="{% url 'records:product_list' %}">&larr; Back to catalog</a>
+            <a class="brand" href="{% url 'records:home' %}">Record<span>Catalog</span></a>
+            <nav class="nav-links">
+                <a href="{% url 'records:product_list' %}">Shop</a>
+                <a href="{% url 'records:cart' %}">Cart{% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'records:account' %}">Account</a>
+                {% else %}
+                    <a href="{% url 'records:login' %}">Login</a>
+                {% endif %}
+                <a href="{% url 'records:contact' %}">Contact</a>
+            </nav>
         </div>
     </header>
 
     <div class="container">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
         <div class="detail-card">
             <div class="images">
                 {% with product.images.all as images %}
@@ -58,9 +75,12 @@
                 <p class="description">{{ product.description }}</p>
 
                 <div class="cta-row">
-                    <button class="btn-primary" type="button" {% if product.stock <= 0 %}disabled{% endif %}>
-                        {% if product.stock > 0 %}Add to Cart{% else %}Unavailable{% endif %}
-                    </button>
+                    <form method="post" action="{% url 'records:cart_add' product.slug %}" style="display: flex; flex: 1;">
+                        {% csrf_token %}
+                        <button class="btn-primary" type="submit" {% if product.stock <= 0 %}disabled{% endif %}>
+                            {% if product.stock > 0 %}Add to Cart{% else %}Unavailable{% endif %}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

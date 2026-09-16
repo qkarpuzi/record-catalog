@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact — Record Catalog</title>
+    <link rel="stylesheet" href="{% static 'records/catalog.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="{% url 'records:home' %}">Record<span>Catalog</span></a>
+            <nav class="nav-links">
+                <a href="{% url 'records:product_list' %}">Shop</a>
+                <a href="{% url 'records:cart' %}">Cart{% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'records:account' %}">Account</a>
+                {% else %}
+                    <a href="{% url 'records:login' %}">Login</a>
+                {% endif %}
+                <a href="{% url 'records:contact' %}">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="form-card">
+            <h1>Get in touch</h1>
+            <p class="subtitle">Questions about an order, a product, or anything else — we read every message.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="field">
+                    <label for="id_name">Name</label>
+                    <input type="text" id="id_name" name="name" required>
+                </div>
+                <div class="field">
+                    <label for="id_email">Email</label>
+                    <input type="email" id="id_email" name="email" required>
+                </div>
+                <div class="field">
+                    <label for="id_message">Message</label>
+                    <textarea id="id_message" name="message" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Send Message</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
